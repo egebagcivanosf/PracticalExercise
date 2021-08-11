@@ -1,10 +1,10 @@
-<apex:page standardController="Account" extensions="OSF_AccDetailsExtension,OSF_popupClass">
+<apex:page standardController="Account" extensions="OSF_AccDetailsExtension" id="page">
     <apex:slds />
     <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     
             <apex:form>
             <apex:pageBlock title="Account Primary Contact">
-                <apex:pageBlockSection>
+                <apex:pageBlockSection >
                     <apex:inputField value="{! Account.Name }"/>
                     <apex:inputField value="{! Account.Type }"/>
                     <apex:inputField value="{! Account.Phone }"/>
@@ -18,8 +18,11 @@
                 </apex:pageBlockButtons>
             </apex:pageBlock>
             </apex:form>
-            <apex:pageBlock title="Related Contacts">
-    <apex:pageBlockTable value="{!Account.contacts}" var="contact">
+
+            
+
+            <apex:pageBlock title="Related Contacts" id="p1">
+    <apex:pageBlockTable value="{!Account.contacts}" var="contact" id="p2">
 
         <apex:column value="{!contact.Name}"/>
         <apex:column value="{!contact.Title}"/>
@@ -32,21 +35,22 @@
                      <use xlink:href="{!URLFOR($Asset.SLDS, 'assets/icons/standard-sprite/svg/symbols.svg#user')}"></use>
                      </svg>     
                 </apex:outputLink>
-                <apex:commandButton value="Show" action="{!showPopup}" rerender="tstpopup"/> 
+
+                <apex:commandButton value="Set As Primary" action="{!showPopup}" 
+                rerender="tstpopup"
+                rendered="{! !Contact.Is_Primary_Contact__c}"
+                > 
+                <apex:param name="actid" value="{!contact.id}" assignTo="{!actid}"/> 
+                </apex:commandButton>
         <apex:outputPanel id="tstpopup"> 
             <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/> 
             <apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayPopUp}"> 
-                <apex:commandButton value="Hide Pop up" action="{!closePopup}" rerender="tstpopup"/> 
+                <p>Do you want to set this contact as primary?</p>
+                <apex:commandButton value="Yes" action="{! setPrimary}" rerender="p1,p2"/> 
+                <apex:commandButton value="No" action="{!closePopup}" rerender="tstpopup"/> 
             </apex:outputPanel> 
         </apex:outputPanel>
            
-              <apex:commandButton 
-              rendered="{! !Contact.Is_Primary_Contact__c}" 
-              action="{! setPrimary}" 
-              value="Set As Primary" 
-              reRender="two">
-              <apex:param name="actid" value="{!contact.id}" assignTo="{!actid}"/> 
-                </apex:commandButton>
             </apex:form>
         </apex:column>
     </apex:pageBlockTable>
