@@ -1,4 +1,4 @@
-<apex:page standardController="Account">
+<apex:page standardController="Account" extensions="OSF_AccDetailsExtension,OSF_popupClass">
     <apex:slds />
     <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     
@@ -26,19 +26,34 @@
         <apex:column value="{!contact.Phone}"/>
         <apex:column value="{!contact.Is_Primary_Contact__c}"/>
         <apex:column>
+           <apex:form>
+                <apex:outputLink rendered="{!Contact.Is_Primary_Contact__c}">
+                     <svg aria-hidden="true" class="slds-icon slds-icon--large slds-icon-standard-user">
+                     <use xlink:href="{!URLFOR($Asset.SLDS, 'assets/icons/standard-sprite/svg/symbols.svg#user')}"></use>
+                     </svg>     
+                </apex:outputLink>
+                <apex:commandButton value="Show" action="{!showPopup}" rerender="tstpopup"/> 
+        <apex:outputPanel id="tstpopup"> 
+            <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/> 
+            <apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayPopUp}"> 
+                <apex:commandButton value="Hide Pop up" action="{!closePopup}" rerender="tstpopup"/> 
+            </apex:outputPanel> 
+        </apex:outputPanel>
            
-        <apex:outputLink rendered="{!Contact.Is_Primary_Contact__c}">
-                <svg aria-hidden="true" class="slds-icon slds-icon--large slds-icon-standard-user">
-                    <use xlink:href="{!URLFOR($Asset.SLDS, 'assets/icons/standard-sprite/svg/symbols.svg#user')}"></use>
-                  </svg>     
-            </apex:outputLink>
-            <apex:outputLink rendered="{! !Contact.Is_Primary_Contact__c}"
-                value="{! URLFOR($Action.Contact.Edit, contact.Id) }"
-                onclick="if(!confirm('Are you sure?')){return false};">      
-                  Set as Primary
-            </apex:outputLink>
+              <apex:commandButton 
+              rendered="{! !Contact.Is_Primary_Contact__c}" 
+              action="{! setPrimary}" 
+              value="Set As Primary" 
+              reRender="two">
+              <apex:param name="actid" value="{!contact.id}" assignTo="{!actid}"/> 
+                </apex:commandButton>
+            </apex:form>
         </apex:column>
     </apex:pageBlockTable>
 </apex:pageBlock>
 </html>
+<style type="text/css"> 
+    .custPopup{ background-color: white; border-width: 2px; border-style: solid; z-index: 9999; left: 50%; padding:11px; position: absolute; width: 600px; margin-left: -240px; top:100px; } 
+    .popupBackground{ background-color:black; opacity: 0.20; filter: alpha(opacity = 20); position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 9998; } 
+</style> 
 </apex:page>
