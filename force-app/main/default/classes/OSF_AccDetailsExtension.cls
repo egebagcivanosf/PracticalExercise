@@ -40,7 +40,6 @@ public with sharing class OSF_AccDetailsExtension {
     {
         displayPopup = true; 
     }
-    
         
     public void search(){
         String varId = ApexPages.currentPage().getParameters().get('id');
@@ -51,5 +50,4 @@ public with sharing class OSF_AccDetailsExtension {
     public void clear(){
         acc.clear();
     }
-    
 }
