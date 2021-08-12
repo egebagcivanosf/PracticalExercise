@@ -45,7 +45,6 @@ public with sharing class OSF_AccDetailsExtension {
         String varId = ApexPages.currentPage().getParameters().get('id');
         String key = +'%'+searchKey+'%';
         acc = [select Name,title,phone,Is_Primary_Contact__c,id from contact where Account.Id = :varId and name like :key];
-            
     }
     public void clear(){
         acc.clear();
