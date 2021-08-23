@@ -19,27 +19,37 @@
         </apex:pageBlock>
     </apex:form>
 
+    <!-- Query Accounts first -->
+    <apex:pageBlock rendered="false">
+        <apex:pageBlockTable value="{!Account.contacts}" var="contact" id="p2">
+            <apex:column value="{!contact.Name}" />
+            <apex:column value="{!contact.Title}" />
+            <apex:column value="{!contact.Phone}" />
+            <apex:column value="{!contact.Is_Primary_Contact__c}" />    
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+
     <apex:pageBlock title="Search Related Contacts">
         <apex:form>
             <apex:inputText value="{! searchKey}" label="Input" />
             <apex:commandButton value="Search records" action="{!search}" />
             <apex:commandButton value="Clear records" action="{!clear}" />
             <apex:pageBlock title="Search Result">
-                <apex:pageBlockTable value="{!acc}" var="a">
-                    <apex:column value="{!a.Name}" />
-                    <apex:column value="{!a.Title}" />
-                    <apex:column value="{!a.Phone}" />
-                    <apex:column value="{!a.Is_Primary_Contact__c}" />
+                <apex:pageBlockTable value="{!if(searchContact = null, Account.contacts, searchContact)}" var="contact">
+                    <apex:column value="{!contact.Name}" />
+                    <apex:column value="{!contact.Title}" />
+                    <apex:column value="{!contact.Phone}" />
+                    <apex:column value="{!contact.Is_Primary_Contact__c}" />
                     <apex:column>
 
-                        <apex:outputLink rendered="{!a.Is_Primary_Contact__c}">
+                        <apex:outputLink rendered="{!contact.Is_Primary_Contact__c}">
                             <svg aria-hidden="true" class="slds-icon slds-icon--large slds-icon-standard-user">
                                 <use xlink:href="{!URLFOR($Asset.SLDS, 'assets/icons/standard-sprite/svg/symbols.svg#user')}"></use>
                             </svg>
                         </apex:outputLink>
 
-                        <apex:commandButton value="Set As Primary" action="{!showPopup}" rerender="tstpopup" rendered="{! !a.Is_Primary_Contact__c}">
-                            <apex:param name="actid" value="{!a.id}" assignTo="{!actid}" />
+                        <apex:commandButton value="Set As Primary" action="{!showPopup}" rerender="tstpopup" rendered="{! !contact.Is_Primary_Contact__c}">
+                            <apex:param name="contactId" value="{!contact.id}" assignTo="{!contactId}" />
                         </apex:commandButton>
                         <apex:outputPanel id="tstpopup">
                             <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}" />
@@ -56,38 +66,8 @@
             </apex:pageBlock>
         </apex:form>
     </apex:pageBlock>
-
-    <apex:pageBlock title="Related Contacts" id="p1">
-        <apex:pageBlockTable value="{!Account.contacts}" var="contact" id="p2">
-
-            <apex:column value="{!contact.Name}" />
-            <apex:column value="{!contact.Title}" />
-            <apex:column value="{!contact.Phone}" />
-            <apex:column value="{!contact.Is_Primary_Contact__c}" />
-            <apex:column>
-                <apex:form>
-                    <apex:outputLink rendered="{!Contact.Is_Primary_Contact__c}">
-                        <svg aria-hidden="true" class="slds-icon slds-icon--large slds-icon-standard-user">
-                            <use xlink:href="{!URLFOR($Asset.SLDS, 'assets/icons/standard-sprite/svg/symbols.svg#user')}"></use>
-                        </svg>
-                    </apex:outputLink>
-
-                    <apex:commandButton value="Set As Primary" action="{!showPopup}" rerender="tstpopup" rendered="{! !Contact.Is_Primary_Contact__c}">
-                        <apex:param name="actid" value="{!contact.id}" assignTo="{!actid}" />
-                    </apex:commandButton>
-                    <apex:outputPanel id="tstpopup">
-                        <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}" />
-                        <apex:outputPanel styleClass="custPopup" layout="block" rendered="{!displayPopUp}">
-                            <p>Do you want to set this contact as primary?</p>
-                            <apex:commandButton value="Yes" action="{! setPrimary}" rerender="p1,p2" />
-                            <apex:commandButton value="No" action="{!closePopup}" rerender="tstpopup" />
-                        </apex:outputPanel>
-                    </apex:outputPanel>
-
-                </apex:form>
-            </apex:column>
-        </apex:pageBlockTable>
-    </apex:pageBlock>
+    
+    
 
     </html>
     <style type="text/css">

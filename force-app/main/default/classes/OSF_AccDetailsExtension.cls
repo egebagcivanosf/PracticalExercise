@@ -1,53 +1,81 @@
+/**
+ * File:        OSF_AccDetailsExtension.cls
+ * Project:     PracticalExercise1
+ * Date:        August 18, 2021
+ * Created By:  egebagcivanosf
+ * *************************************************************************
+ * Description:  Practical Exercise Controller Extension
+ * *************************************************************************
+ */
 public with sharing class OSF_AccDetailsExtension {
-    public OSF_AccDetailsExtension(ApexPages.StandardController stdController) { }
+    public OSF_AccDetailsExtension(ApexPages.StandardController stdController) {
+        list <Contact> ctt = [SELECT Id, Is_Primary_Contact__c FROM Contact];
+     }
     
-    public String actid {get; set;}
-    public list <Contact> acc {get;set;}
+    public String contactId {get; set;}
+    public list <Contact> searchContact {get;set;}
     public String searchKey {get;set;}
-    String var = ApexPages.currentPage().getParameters().get('id');
+    public boolean displayPopup {get;set;}
+    String accountId = ApexPages.currentPage().getParameters().get('id');
+    
+    /**
+    * @author Ege Bagcivan
+    * @date August 18, 2021
+    * @description Setting clicked primary contact and unsetting old primary contact for an account.
+    * @name setPrimary
+    * @param String
+    */
     public Pagereference setPrimary() { 
+        
         //If there is primary contact make it false first
-        List<Contact> primaryct = [SELECT Id FROM Contact WHERE Is_Primary_Contact__c = true AND Account.Id = :var];
+        List<Contact> primaryct = [SELECT Id FROM Contact WHERE Is_Primary_Contact__c = true AND Account.Id = :accountId];
         if(primaryct.size() > 0)  {
             Contact a = primaryct.get(0);
             a.Is_Primary_Contact__c = false;
         }
         
         //Get Account Id and set as primary contact
-        Contact queriedContact = [SELECT Id
-                          FROM Contact 
-                          WHERE Id = :actid
-                          LIMIT 1];
+        Contact queriedContact = [SELECT Id FROM Contact WHERE Id = :contactId LIMIT 1];
         queriedContact.Is_Primary_Contact__c = true;
 
+        try {
         update queriedContact;
         update primaryct;
-        //When process completed close pop-up
+        } catch (DmlException e) {
+            System.debug(e);
+        }
+        
+        //When process completed close pop-up and refresh the page with associated accountId
         displayPopup = false;
-
-        //When process complete refresh page witch associated accountId
-        PageReference retURL = new PageReference('/apex/OSF_AccountDetails?id='+var);
+        PageReference retURL = new PageReference('/apex/OSF_AccountDetails?id='+accountId);
         retURL.setRedirect(true);
         return retURL;
     }  
     //Pop-up 
-    public boolean displayPopup {get;set;}
-    public void closePopup() 
-    {
+    public void closePopup() {
         displayPopup = false; 
     } 
-    public void showPopup() 
-    {
+    public void showPopup() {
         displayPopup = true; 
     }
         
-    public void search(){
-        String varId = ApexPages.currentPage().getParameters().get('id');
+    /**
+    * @author Ege Bagcivan
+    * @date August 18, 2021
+    * @description Search contacts associated with entered name
+    * @name Search
+    * @param String
+    */
+    public void search() {
         String key = +'%'+searchKey+'%';
-        acc = [select Name,title,phone,Is_Primary_Contact__c,id from contact where Account.Id = :varId and name like :key];
-            
+        try {
+            searchContact = [select Name,title,phone,Is_Primary_Contact__c,id from contact where Account.Id = :accountId and name like :key];
+        } catch (DmlException e) {
+            System.debug(e);
+        }          
     }
-    public void clear(){
-        acc.clear();
+    //Clear search input field
+    public void clear() {
+        searchContact = null;
     }
 }
